@@ -10,19 +10,19 @@ describe ComposeHook::Payload do
   end
 
   let(:secret) { "47bca2f902a2d876117749544fed8620e246c29e" }
-  let(:expire) { nil }
+  let(:expire) { 315_360_000 }
 
   context "generate an encrypted payload" do
     it do
       expect(payload.generate!(service: "some_service", image: "your_image", iat: 1_580_205_632)).to \
-        eq("eyJhbGciOiJIUzI1NiJ9.eyJzZXJ2aWNlIjoic29tZV9zZXJ2aWNlIiwiaW1hZ2UiOiJ5b3VyX2ltYWdlIiwiaWF0IjoxNTgwMjA1NjMyLCJleHAiOjE1ODAyMDYyMzJ9.tIXLmiw1exVhF8sETYzdYvd6SvXlpeoiz9OPcR9vVzw")
+        eq("eyJhbGciOiJIUzI1NiJ9.eyJzZXJ2aWNlIjoic29tZV9zZXJ2aWNlIiwiaW1hZ2UiOiJ5b3VyX2ltYWdlIiwiaWF0IjoxNTgwMjA1NjMyLCJleHAiOjE4OTU1NjU2MzJ9.0csHOLQncT4qMmyRZ6Qg8SSAK6hOxMLydQUFfZO6fcM")
     end
   end
 
   context "decrypt a payload" do
     it do
-      expect(payload.decode!("eyJhbGciOiJIUzI1NiJ9.eyJzZXJ2aWNlIjoic29tZV9zZXJ2aWNlIiwiaW1hZ2UiOiJ5b3VyX2ltYWdlIiwiaWF0IjoxNTgwMjA1NjMyLCJleHAiOjE1ODAyMDYyMzJ9.tIXLmiw1exVhF8sETYzdYvd6SvXlpeoiz9OPcR9vVzw")).to \
-        eq("service" => "some_service", "image" => "your_image", "iat" => 1_580_205_632, "exp" => 1_580_206_232)
+      expect(payload.decode!("eyJhbGciOiJIUzI1NiJ9.eyJzZXJ2aWNlIjoic29tZV9zZXJ2aWNlIiwiaW1hZ2UiOiJ5b3VyX2ltYWdlIiwiaWF0IjoxNTgwMjA1NjMyLCJleHAiOjE4OTU1NjU2MzJ9.0csHOLQncT4qMmyRZ6Qg8SSAK6hOxMLydQUFfZO6fcM")).to \
+        eq("service" => "some_service", "image" => "your_image", "iat" => 1_580_205_632, "exp" => 1_895_565_632)
     end
   end
 

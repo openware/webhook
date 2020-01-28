@@ -2,11 +2,10 @@
 
 lib = File.expand_path("lib", __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "compose-hook"
 
 Gem::Specification.new do |spec|
   spec.name = "compose-hook"
-  spec.version = ComposeHook::VERSION
+  spec.version = File.read(File.join(File.dirname(__FILE__), "VERSION")).strip
   spec.authors = ["Danylo P.", "Camille M."]
   spec.email = ["hello@heliostech.fr"]
 
@@ -24,7 +23,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "faraday"
-  spec.add_dependency "jwt"
+  spec.add_dependency "jwt", "~> 2.2"
   spec.add_dependency "puma"
   spec.add_dependency "rack"
   spec.add_dependency "sinatra"
