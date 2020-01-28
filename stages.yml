@@ -1,2 +1,2 @@
-- domain: "www.openware.com"
-  path: "/home/deploy/openware"
+- domain: "www.example.com"
+  path: "/home/deploy/example"

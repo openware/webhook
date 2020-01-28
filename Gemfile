@@ -1,7 +1,8 @@
-gem 'bump'
-gem 'rack'
-gem 'sinatra'
-gem 'puma'
-gem 'rspec'
-gem 'jwt'
-gem 'faraday'
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
+
+# Specify your gem's dependencies in peatio.gemspec
+gemspec
