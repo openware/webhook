@@ -3,7 +3,7 @@ PATH
   specs:
     compose-hook (0.1.0)
       faraday
-      jwt
+      jwt (~> 2.2)
       puma
       rack
       sinatra

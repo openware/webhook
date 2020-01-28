@@ -1,11 +1,5 @@
 # frozen_string_literal: true
 
-require "sinatra/base"
-require "json"
-require "yaml"
-
-require_relative "payload"
-
 class ComposeHook::WebHook < Sinatra::Base
   class RequestError < StandardError; end
   class ServerError < StandardError; end
