@@ -26,6 +26,23 @@ steps:
       branch:
         - master
 
+  - name: Publish to RubyGems
+    image: ruby:2.6
+    environment:
+      RUBYGEMS_API_KEY:
+        from_secret: rubygems_api_key
+    commands:
+      - mkdir ~/.gem
+      - |
+        echo "---\n:rubygems_api_key: $RUBYGEMS_API_KEY" > ~/.gem/credentials
+      - chmod 0600 ~/.gem/credentials
+      - bundle --jobs $(nproc)
+      - bundle exec gem build compose-hook.gemspec
+      - bundle exec gem push compose-hook-$DRONE_TAG.gem
+    when:
+      event:
+        - tag
+
 trigger:
   event:
     - push
