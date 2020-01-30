@@ -44,6 +44,8 @@ GEM
     rack (2.1.2)
     rack-protection (2.0.8.1)
       rack
+    rack-test (1.1.0)
+      rack (>= 1.0, < 3)
     rainbow (3.0.0)
     rake (10.5.0)
     reline (0.1.2)
@@ -97,6 +99,7 @@ DEPENDENCIES
   compose-hook!
   irb
   pry-byebug
+  rack-test
   rake (~> 10.0)
   rspec (~> 3.0)
   rubocop-github
