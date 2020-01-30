@@ -6,7 +6,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 Gem::Specification.new do |spec|
   spec.name = "compose-hook"
   spec.version = File.read(File.join(File.dirname(__FILE__), "VERSION")).strip
-  spec.authors = ["Danylo P.", "Camille M."]
+  spec.authors = ["Danylo P.", "Camille M.", "Valentine S."]
   spec.email = ["hello@heliostech.fr"]
 
   spec.summary = "Docker compose webhook"
