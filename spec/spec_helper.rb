@@ -17,7 +17,13 @@
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
 require "bundler/setup"
+require "rack/test"
 require "compose-hook"
+
+module RSpecMixin
+  include Rack::Test::Methods
+  def app() ComposeHook::WebHook end
+end
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
@@ -33,6 +39,8 @@ RSpec.configure do |config|
     #     # => "be bigger than 2"
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
   end
+
+  config.include RSpecMixin
 
   # rspec-mocks config goes here. You can use an alternate test double
   # library (such as bogus or mocha) by changing the `mock_with` option here.
