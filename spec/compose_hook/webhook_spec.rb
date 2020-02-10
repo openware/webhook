@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 describe ComposeHook::WebHook do
+  let(:config_path) { "config/deployments.yml" }
   let(:secret) { "47bca2f902a2d876117749544fed8620e246c29e" }
   let(:jwt) { "eyJhbGciOiJIUzI1NiJ9.eyJzZXJ2aWNlIjoic29tZV9zZXJ2aWNlIiwiaW1hZ2UiOiJ5b3VyX2ltYWdlIiwiaWF0IjoxNTgwMjA1NjMyLCJleHAiOjE4OTU1NjU2MzJ9.0csHOLQncT4qMmyRZ6Qg8SSAK6hOxMLydQUFfZO6fcM" }
 
-
   context "respond to ping" do
     it do
+      allow(ENV).to receive(:[]).with("CONFIG_PATH").and_return(config_path)
       allow(ENV).to receive(:[]).with("WEBHOOK_JWT_SECRET").and_return(secret)
       get '/deploy/ping'
       expect(last_response).to be_ok
