@@ -1,11 +1,19 @@
-#!/bin/bash
-SECRET=$(ruby -rsecurerandom -e 'puts SecureRandom.hex(20)')
+#!/usr/bin/env ruby
 
-sed s/GENERATED_HMAC_SECRET/${SECRET}/g templates/webhook.service > webhook.service
-sed -i s#TARGET_DIRECTORY#${PWD}#g webhook.service
+# frozen_string_literal: true
 
-echo "Generated Secret: ${SECRET}"
+require 'erb'
+require 'fileutils'
 
-sudo mv ./webhook.service /etc/systemd/system/webhook.service
-sudo systemctl daemon-reload
-sudo systemctl start webhook
+TEMPLATE_PATH = "templates/webhook.service.erb"
+OUTPUT_PATH = "/etc/systemd/system/webhook.service"
+
+@secret = SecureRandom.hex(20)
+@config_path = ENV.fetch("STAGES_PATH", File.join(Dir.pwd, "config/deployments.yml"))
+template = ERB.new(File.read(TEMPLATE_PATH))
+File.write(OUTPUT_PATH, template.result(binding))
+
+puts "Generated Secret: #{secret}"
+
+system("sudo systemctl daemon-reload")
+system("sudo systemctl start webhook")
