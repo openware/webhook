@@ -3,11 +3,11 @@ Description=Compose Webhook service
 
 [Service]
 User=deploy
-Environment="WEBHOOK_JWT_SECRET=GENERATED_HMAC_SECRET"
+Environment="WEBHOOK_JWT_SECRET=<%= @secret %>"
+Environment="CONFIG_PATH=<%= @config_path %>"
 ExecStart=/bin/bash -c "source ~/.rvm/scripts/rvm; compose-hook"
 Type=simple
 Restart=always
-WorkingDirectory=TARGET_DIRECTORY
 
 [Install]
 WantedBy=multi-user.target
