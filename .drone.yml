@@ -41,9 +41,10 @@ steps:
       - bundle exec gem build compose-hook.gemspec
       - bundle exec gem push compose-hook-$DRONE_TAG.gem
     when:
-      branch:
-        - master
+      event:
+        - tag
 
 trigger:
   event:
     - push
+    - tag
