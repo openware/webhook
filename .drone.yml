@@ -26,6 +26,15 @@ steps:
       branch:
         - master
 
+trigger:
+  event:
+    - push
+
+---
+kind: pipeline
+name: tag
+
+steps:
   - name: Publish to RubyGems
     image: ruby:2.6
     environment:
@@ -40,10 +49,7 @@ steps:
       - bundle --jobs $(nproc)
       - bundle exec gem build compose-hook.gemspec
       - bundle exec gem push compose-hook-$DRONE_TAG.gem
-    when:
-      branch:
-        - master
 
 trigger:
   event:
-    - push
+    - tag
