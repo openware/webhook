@@ -6,16 +6,15 @@ class ComposeHook::WebHook < Sinatra::Base
 
   attr_accessor :config, :secret, :decoder
 
-  CONFIG_PATH = "compose/docker-compose.yml"
-  STAGES_PATH = "/home/deploy/webhook/stages.yml"
-
   set :show_exceptions, false
 
-  def initialize
+  def initialize(app=nil)
     super
 
     @secret = ENV["WEBHOOK_JWT_SECRET"]
-    raise "WEBHOOK_JWT_SECRET is not set" if @secret.to_s.empty?
+    raise "WEBHOOK_JWT_SECRET is not set" if secret.to_s.empty?
+    raise "CONFIG_PATH is not set" if ENV["CONFIG_PATH"].to_s.empty?
+    raise "File #{ENV['CONFIG_PATH']} not found" unless File.exist?(ENV["CONFIG_PATH"])
 
     @config = YAML.load_file(ENV["CONFIG_PATH"])
     raise "The config file is empty or non-existent" if @config.empty?
@@ -60,7 +59,7 @@ class ComposeHook::WebHook < Sinatra::Base
       service = decoded["service"]
       image = decoded["image"]
       hostname = request.host
-      deployment = config.find { |d| d["domain"] == hostname }
+      deployment = config.find {|d| d["domain"] == hostname }
       service_file = find_service(service, File.join(deployment["path"], deployment["subpath"]))
 
       return answer(400, "service is not specified") unless service
