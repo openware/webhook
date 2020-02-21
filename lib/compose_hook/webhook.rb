@@ -4,22 +4,29 @@ class ComposeHook::WebHook < Sinatra::Base
   class RequestError < StandardError; end
   class ServerError < StandardError; end
 
-  attr_accessor :config, :secret, :decoder
-
   set :show_exceptions, false
 
   def initialize(app=nil)
     super
 
-    @secret = ENV["WEBHOOK_JWT_SECRET"]
     raise "WEBHOOK_JWT_SECRET is not set" if secret.to_s.empty?
     raise "CONFIG_PATH is not set" if ENV["CONFIG_PATH"].to_s.empty?
     raise "File #{ENV['CONFIG_PATH']} not found" unless File.exist?(ENV["CONFIG_PATH"])
+  end
 
-    @config = YAML.load_file(ENV["CONFIG_PATH"])
-    raise "The config file is empty or non-existent" if @config.empty?
+  def secret
+    ENV["WEBHOOK_JWT_SECRET"]
+  end
 
-    @decoder = ComposeHook::Payload.new(secret: secret)
+  def decoder
+    ComposeHook::Payload.new(secret: secret)
+  end
+
+  def config
+    config = YAML.load_file(ENV["CONFIG_PATH"])
+    raise "The config file is empty or non-existent" if config.empty?
+
+    config
   end
 
   def update_service(path, service, image)
@@ -30,17 +37,16 @@ class ComposeHook::WebHook < Sinatra::Base
   end
 
   def find_service(service, path)
-    res = ""
+    puts "find_service: #{path}"
 
     Dir[File.join(path, "*.yml")].each do |file|
       begin
-        res = file.path unless YAML.load_file(file)["services"][service].empty?
+        return file unless YAML.load_file(file)["services"][service].empty?
       rescue StandardError => e
-        puts "Error while parsing deployment files:", e
+        warn "Error while parsing deployment files:", e
       end
     end
-
-    res
+    raise RequestError.new("service #{service} not found")
   end
 
   before do
@@ -53,31 +59,35 @@ class ComposeHook::WebHook < Sinatra::Base
 
   get "/deploy/:token" do |token|
     begin
-      decoded = @decoder.safe_decode(token)
+      decoded = decoder.safe_decode(token)
       return answer(400, "invalid token") unless decoded
 
       service = decoded["service"]
       image = decoded["image"]
       hostname = request.host
-      deployment = config.find {|d| d["domain"] == hostname }
-      service_file = find_service(service, File.join(deployment["path"], deployment["subpath"]))
+      return answer(500, "configuration must be an array of hash") unless config.is_a?(Array)
 
+      deployment = config.find {|d| d["domain"] == hostname }
+      return answer(400, "unknown domain #{hostname}") unless deployment
+      return answer(400, "root missing for #{hostname}") unless deployment["root"]
+
+      service_file = find_service(service, File.join(deployment["root"], deployment["subpath"].to_s))
       return answer(400, "service is not specified") unless service
       return answer(400, "image is not specified") unless image
       return answer(404, "invalid domain") unless deployment
       return answer(404, "invalid service") unless service_file
-      return answer(400, "invalid image") if (%r(^(([-_\w\.]){,20}(\/|:))+([-\w\.]{,20})$) =~ image).nil?
+      return answer(400, "invalid image format") if (%r(^(([-_\w\.]){,20}(\/|:))+([-\w\.]{,20})$) =~ image).nil?
 
-      system "docker image pull #{image}"
+      Kernel.system "docker image pull #{image}"
 
       unless $CHILD_STATUS.success?
-        system("docker image inspect #{image} > /dev/null")
+        Kernel.system("docker image inspect #{image} > /dev/null")
         return answer(404, "invalid image") unless $CHILD_STATUS.success?
       end
 
       Dir.chdir(deployment["root"]) do
         update_service(service_file, service, image)
-        system "docker-compose up -Vd #{service}"
+        Kernel.system "docker-compose up -Vd #{service}"
         raise ServerError.new("could not recreate the container") unless $CHILD_STATUS.success?
       end
 
@@ -86,6 +96,9 @@ class ComposeHook::WebHook < Sinatra::Base
       return answer(400, e.to_s)
     rescue ServerError => e
       return answer(500, e.to_s)
+    rescue StandardError => e
+      warn "Error: #{e}:\n#{e.backtrace.join("\n")}"
+      return answer(500, "Internal server error")
     end
   end
 
