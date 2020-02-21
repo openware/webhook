@@ -1,0 +1,6 @@
+---
+version: '3.6'
+services:
+  barong:
+    restart: always
+    image: quay.io/openware/barong:2.4.6
