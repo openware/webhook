@@ -39,7 +39,7 @@ class ComposeHook::WebHook < Sinatra::Base
   def find_service(service, path)
     puts "find_service: #{path}"
 
-    Dir[File.join(path, "*.yml")].each do |file|
+    Dir[File.join(path, "*.{yml,yaml}")].each do |file|
       begin
         return file unless YAML.load_file(file)["services"][service].empty?
       rescue StandardError => e
