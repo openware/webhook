@@ -4,6 +4,9 @@
 
 $LOAD_PATH << File.join(File.dirname(__FILE__), "../lib")
 
-require 'compose-hook'
+require "compose-hook"
 
-run ComposeHook::WebHook.run!
+port = ENV["COMPOSE_HOOK_PORT"] || 1337
+host = ENV["COMPOSE_HOOK_HOST"] || "0.0.0.0"
+
+run ComposeHook::WebHook.run!(port: port, bind: host)

@@ -4,13 +4,13 @@
 
 $LOAD_PATH << File.join(File.dirname(__FILE__), "../lib")
 
-require 'faraday'
-require 'compose-hook'
+require "faraday"
+require "compose-hook"
 
-abort 'Usage: payload *service* *image* *url*' unless ARGV.length == 3
+abort "Usage: payload *service* *image* *url*" unless ARGV.length == 3
 
-secret = ENV['WEBHOOK_JWT_SECRET']
-abort 'WEBHOOK_JWT_SECRET not set' if secret.to_s.empty?
+secret = ENV["WEBHOOK_JWT_SECRET"]
+abort "WEBHOOK_JWT_SECRET not set" if secret.to_s.empty?
 coder = ComposeHook::Payload.new(secret: secret)
 
 jwt = coder.generate!(service: ARGV[0], image: ARGV[1])
@@ -22,4 +22,4 @@ end
 
 pp response.body
 
-fail unless response.status == 200
+raise unless response.status == 200
